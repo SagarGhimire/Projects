@@ -5,7 +5,8 @@
  */
 package pkg0.pkg1knapsack.problem;
 
-
+import java.util.Arrays;
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Random;
@@ -14,61 +15,71 @@ import java.util.Random;
  *
  * @author s525189
  */
-public class Problem
-{
+public class Problem {
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args)
-    {
-        int W = 500;
-        for (int n = 1; n <= 10000; n *= 2)
-        {
+    public static void main(String[] args) {
+        // TODO code application logic here
+        int W = 50;
+        int n = 1000000;
 
-            if (n != 0)
-            {
-                greedytime(W, n, 100);
-            }
+        Random a = new Random();
+        Item[] s = new Item[n];
+        for (int i = 0; i < s.length; i++) {
+            Item e = new Item();
+            e.weight = a.nextInt(50) + 1;
+
+            e.value = a.nextInt(50);
+            s[i] = e;
         }
+        int g = greedyHeuristicWeight(W, s);
+        int q = greedyHeuristicValue(W, s);
+
+        int w = dynamic(W, s);
+
+        //Quality for the solution. i.e. greedy/dynamic. Run this function through the loop too.
+        float u = (float) g / w;
+        System.out.println("The ratio of greedy to dynamic is :" + u);
+
+        float i = (float) q / w;
+        System.out.println("The ratio of greedy value to dynamic is: " + i);
+
+        ///Pass it on the loop.
+        greedytime(W, n, 500);
+        System.out.println("Optimal solution" + "\n GreedyWeight" + g + "\nGreedyValue " + q + "\n Dyanmic " + w);
+
     }
 
-    public static int greedyHeuristicWeight(int W, Item[] wt)
-    {//sort by wt // big thita complexity is nlgn
+    public static int greedyHeuristicWeight(int W, Item[] wt) {//sort by wt // big thita complexity is nlgn
         int totalWeight = 0;
         int totalValue = 0;
         int sumOfWeight = 0;
         sortGreedyWeight(wt); //ig thita complexity is nlgn
 
-        for (int i = 0; i < wt.length; i++)
-        {
-            if (wt[i].weight < W - sumOfWeight)
-            {
+        for (int i = 0; i < wt.length; i++) {
+            if (wt[i].weight < W - sumOfWeight) {
                 sumOfWeight = sumOfWeight + wt[i].weight;
                 totalValue += wt[i].value;
-            } else
-            {
+            } else {
                 break;
             }
         }
         return totalValue;
     }
 
-    public static int greedyHeuristicValue(int W, Item[] val)
-    {//sort by wt //big-thita is nlgn
+    public static int greedyHeuristicValue(int W, Item[] val) {//sort by wt //big-thita is nlgn
         int totalWeight = 0;
         int totalValue = 0;
         int sumOfWeight = 0;
         sortGreedyValue(val); //nlgn 
 
-        for (int i = 0; i < val.length; i++)
-        {
-            if (val[i].weight < W - sumOfWeight)
-            {
+        for (int i = 0; i < val.length; i++) {
+            if (val[i].weight < W - sumOfWeight) {
                 sumOfWeight = sumOfWeight + val[i].weight;
                 totalValue += val[i].value;
-            } else
-            {
+            } else {
                 break;
             }
 
@@ -76,56 +87,42 @@ public class Problem
         return totalValue;
     }
 
-    public static void sortGreedyWeight(Item[] itemArray)
-    {
-        Arrays.sort(itemArray, new Comparator<Item>()
-        {
+    public static void sortGreedyWeight(Item[] itemArray) {
+        Arrays.sort(itemArray, new Comparator<Item>() {
             @Override
-            public int compare(Item i1, Item i2)
-            {
+            public int compare(Item i1, Item i2) {
                 return i1.weight - i2.weight;
             }
         });
 
     }
 
-    public static void sortGreedyValue(Item[] itemArray)
-    {
-        Arrays.sort(itemArray, new Comparator<Item>()
-        {
+    public static void sortGreedyValue(Item[] itemArray) {
+        Arrays.sort(itemArray, new Comparator<Item>() {
             @Override
-            public int compare(Item i1, Item i2)
-            {
+            public int compare(Item i1, Item i2) {
                 return i2.value - i1.value;
             }
         });
 
     }
 
-    public static int dynamic(int W, Item[] item)
-    { //compexity is : nW
+    public static int dynamic(int W, Item[] item) { //compexity is : nW
         int n = item.length;
         int[][] dy = new int[n][W + 1];
-        for (int i = 0; i < n; i++)
-        {
+        for (int i = 0; i < n; i++) {
             dy[i][0] = 0;
         }
-        for (int j = 1; j < W + 1; j++)
-        {
-            if (item[0].weight <= j)
-            {
+        for (int j = 1; j < W + 1; j++) {
+            if (item[0].weight <= j) {
                 dy[0][j] = item[0].value;
             }
         }
-        for (int i = 1; i < n; i++)
-        {
-            for (int j = 1; j < W + 1; j++)
-            {
-                if (item[i].weight < j)
-                {
+        for (int i = 1; i < n; i++) {
+            for (int j = 1; j < W + 1; j++) {
+                if (item[i].weight < j) {
                     dy[i][j] = max(dy[i - 1][j], item[i].value + dy[i][j - item[i].weight]);
-                } else
-                {
+                } else {
                     dy[i][j] = dy[i - 1][j];
                 }
             }
@@ -134,64 +131,51 @@ public class Problem
         return dy[n - 1][W];
     }
 
-    public static int max(int a, int b)
-    {
-        if (a > b)
-        {
+
+    public static int max(int a, int b) {
+        if (a > b) {
             return a;
-        } else
-        {
+        } else {
             return b;
         }
     }
 
-    public static void greedytime(int W, int n, int iters)
-    {
+    public static void greedytime(int W, int n, int iters) {
         int greedytime = 0;
         int greedytime1 = 0;
         int dpTime = 0;
-        float avgQualityValue = 0;
-        float avgQualityWeight = 0;
         long total = 0;
         long start, end;
 
         Random rand = new Random();
-
-        for (int x = 0; x < iters; x++)
-        {
-            Item[] items = new Item[n];
-            for (int i = 0; i < n; i++)
-            {
-                Item item = new Item();
-                item.weight = rand.nextInt(W);
-                item.value = rand.nextInt(500);
-                items[i] = item;
-            }
-
-            start = System.nanoTime();
-            int greedyValue = greedyHeuristicValue(W, items);
-            end = System.nanoTime();
-            greedytime += (end - start) / (float) iters;
-
-            start = System.nanoTime();
-            int greedyWeight = greedyHeuristicWeight(W, items);
-            end = System.nanoTime();
-            greedytime1 += (end - start) / (float) iters;
-
-            start = System.nanoTime();
-            int dpQuality = dynamic(W, items);
-            end = System.nanoTime();
-            dpTime += (end - start) / (float) iters;
-
-            avgQualityValue += ((float) greedyValue / (float) dpQuality) / ((float) iters);
-            avgQualityWeight += ((float) greedyWeight / (float) dpQuality) / ((float) iters);
-
+        Item[] items = new Item[n];
+        for (int i = 0; i < n; i++) {
+            Item item = new Item();
+            item.weight = rand.nextInt(W);
+            item.value = rand.nextInt(500);
+            items[i] = item;
         }
+        start = System.nanoTime();
+        int greedy = greedyHeuristicValue(W, items);
+        end = System.nanoTime();
+        greedytime += (end - start) / (float) iters;
+        System.out.println("The time for the greedy by value is " + greedytime);
 
-        System.out.println("Greedy Value Time: " + greedytime + " Greedy Weight Time: " + greedytime1 + " Dynamic Time: " + dpTime);
-        System.out.println("Average Quality for Greedy Value: " + avgQualityValue);
-        System.out.println("Average Quality for Greedy Weight: " + avgQualityWeight);
-        System.out.println("Length: " + n + " --------------------------");
+        start = System.nanoTime();
+        int greedyweight = greedyHeuristicWeight(W, items);
+
+        end = System.nanoTime();
+        greedytime1 += (end - start) / (float) iters;
+        System.out.println("The time for the greedy by weight is " + greedytime1);
+
+        start = System.nanoTime();
+        int dptime = dynamic(W, items);
+        end = System.nanoTime();
+        dpTime += (end - start) / (float) iters;
+        System.out.println("The time for the dynamic programming is " + dpTime);
+
+        
+
     }
 
 }
